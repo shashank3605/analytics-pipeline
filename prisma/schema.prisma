@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model EventRaw {
+  id          String   @id @default(cuid())
+  ingestionId String   @unique
+  eventType   String
+  userId      String?
+  sessionId   String?
+  pageUrl     String?
+  metadata    Json?
+  eventTime   DateTime
+  createdAt   DateTime @default(now())
+
+  @@index([eventType])
+  @@index([eventTime])
+  @@index([pageUrl])
+  @@index([createdAt])
+  @@map("events_raw")
+}
+
+model DailyEventStats {
+  id         String   @id @default(cuid())
+  eventDate  DateTime
+  eventType  String
+  totalCount Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([eventDate, eventType])
+  @@index([eventDate])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("daily_event_stats")
+}
+
+model PageStats {
+  id        String   @id @default(cuid())
+  pageUrl   String
+  eventDate DateTime
+  views     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([pageUrl, eventDate])
+  @@index([pageUrl])
+  @@index([eventDate])
+  @@index([createdAt])
+  @@map("page_stats")
+}
+
+model EventFailure {
+  id           String   @id @default(cuid())
+  ingestionId  String
+  payload      Json
+  errorMessage String
+  retryCount   Int      @default(0)
+  failedAt     DateTime @default(now())
+
+  @@index([ingestionId])
+  @@index([failedAt])
+  @@map("event_failures")
+}
