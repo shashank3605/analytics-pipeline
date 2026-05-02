@@ -1,10 +1,12 @@
-# Scalable Analytics Pipeline
+# 🚀 Scalable Analytics Pipeline
 
 A high-throughput event ingestion and analytics backend built with Node.js, Redis, BullMQ, PostgreSQL, and Prisma.
 
 The system uses asynchronous queue-based processing and batch aggregation to handle around **7,000 events/sec** with low latency.
 
-## Performance Snapshot
+---
+
+## 📊 Performance Snapshot
 
 | Metric | Result |
 |---|---|
@@ -14,7 +16,9 @@ The system uses asynchronous queue-based processing and batch aggregation to han
 | Architecture | API → Redis Queue → Worker → PostgreSQL |
 | Optimal Workers | 1 worker locally |
 
-## Architecture
+---
+
+## 🏗️ Architecture
 
 ```text
 Client
@@ -27,12 +31,3 @@ Batch Worker
   ↓
 PostgreSQL
 
-Features
-Asynchronous event ingestion
-Redis-backed queue using BullMQ
-Batch worker processing
-PostgreSQL raw and aggregate tables
-Prisma ORM
-API key authentication
-Rate limiting
-Load tested with Autocannon
