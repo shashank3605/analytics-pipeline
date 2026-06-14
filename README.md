@@ -17,21 +17,20 @@ A high-throughput event ingestion and analytics backend built with Node.js, Redi
 ---
 
 ## 🏗️ Architecture
-
-```text
 Client → API → Redis Queue → Worker → PostgreSQL
-           ↓         ↓           ↓
-       Validation  BullMQ    Batch Upsert
-       Rate Limit  Queue     Aggregation
-```
 
+↓         ↓           ↓
+
+Validation  BullMQ    Batch Upsert
+
+Rate Limit  Queue     Aggregation
 ---
 
 ## 🔥 Features
 
 - ⚡ Asynchronous event ingestion
 - 📦 Redis-backed queue using BullMQ
-- 🔄 Batch worker processing
+- �� Batch worker processing
 - 🗄️ PostgreSQL raw + aggregate tables
 - 🧠 Prisma ORM
 - 🔐 API key authentication
@@ -60,7 +59,7 @@ Client → API → Redis Queue → Worker → PostgreSQL
 - **Batch processing** to reduce DB write load — workers process events in bulk not one by one
 - **Raw + aggregate tables** — raw for audit trail, aggregate for fast analytics queries
 - **Single worker locally** — multiple workers cause DB contention, increasing latency
-- **Identified Prisma upsert as bottleneck** — next step is raw SQL batch upserts with `ON CONFLICT`
+- **Identified Prisma upsert as bottleneck** — next step is raw SQL batch upserts with ON CONFLICT
 
 ---
 
@@ -110,7 +109,7 @@ npm run worker
 
 ## 🔮 Future Improvements
 
-- Raw SQL batch upserts using `ON CONFLICT DO UPDATE`
+- Raw SQL batch upserts using ON CONFLICT DO UPDATE
 - Docker + docker-compose setup
 - Monitoring with Prometheus + Grafana
 - Dead-letter queue for failed events
