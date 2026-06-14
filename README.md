@@ -1,8 +1,6 @@
 # 🚀 Scalable Analytics Pipeline
 
-A high-throughput event ingestion and analytics backend built with Node.js, Redis, BullMQ, PostgreSQL, and Prisma.
-
-The system uses asynchronous queue-based processing and batch aggregation to handle around **7,000 events/sec** with low latency.
+A high-throughput event ingestion and analytics backend built with Node.js, Redis, BullMQ, PostgreSQL, and Prisma. The system uses asynchronous queue-based processing and batch aggregation to handle around **7,000 events/sec** at ~14ms latency.
 
 ---
 
@@ -22,62 +20,104 @@ The system uses asynchronous queue-based processing and batch aggregation to han
 
 ```text
 Client → API → Redis Queue → Worker → PostgreSQL
+           ↓         ↓           ↓
+       Validation  BullMQ    Batch Upsert
+       Rate Limit  Queue     Aggregation
+```
 
-## 🔥 **Features**
+---
 
-- ⚡ Asynchronous event ingestion  
-- 📦 Redis-backed queue using BullMQ  
-- 🔄 Batch worker processing  
-- 🗄️ PostgreSQL raw + aggregate tables  
-- 🧠 Prisma ORM  
-- 🔐 API key authentication  
-- 🚦 Rate limiting  
-- 📈 Load tested (~7k req/sec)  
+## 🔥 Features
+
+- ⚡ Asynchronous event ingestion
+- 📦 Redis-backed queue using BullMQ
+- 🔄 Batch worker processing
+- 🗄️ PostgreSQL raw + aggregate tables
+- 🧠 Prisma ORM
+- 🔐 API key authentication
+- 🚦 Rate limiting
+- 📈 Load tested (~7k req/sec with Autocannon)
+
+---
 
 ## 📦 Tech Stack
 
-- Node.js  
-- Express.js  
-- PostgreSQL  
-- Prisma  
-- Redis  
-- BullMQ  
-- Zod  
-- Pino  
-- Autocannon  
+| Technology | Purpose |
+|---|---|
+| Node.js + Express | API server |
+| Redis + BullMQ | Queue management |
+| PostgreSQL | Data storage |
+| Prisma ORM | Database access |
+| Zod | Input validation |
+| Pino | Structured logging |
+| Autocannon | Load testing |
+
+---
+
+## 🧠 Design Decisions
+
+- **Queue-based architecture** to decouple ingestion from processing — API responds instantly, processing happens async
+- **Batch processing** to reduce DB write load — workers process events in bulk not one by one
+- **Raw + aggregate tables** — raw for audit trail, aggregate for fast analytics queries
+- **Single worker locally** — multiple workers cause DB contention, increasing latency
+- **Identified Prisma upsert as bottleneck** — next step is raw SQL batch upserts with `ON CONFLICT`
+
+---
 
 ## 📈 Load Testing
 
 ```bash
 autocannon -c 100 -d 30 -m POST \
--H "Content-Type: application/json" \
--H "x-api-key: my-secret-dev-key" \
--b '{...}' \
-http://localhost:5001/api/events
-
+  -H "Content-Type: application/json" \
+  -H "x-api-key: my-secret-dev-key" \
+  -b '{"eventType":"click","userId":"user_123","metadata":{}}' \
+  http://localhost:5001/api/events
+```
 
 ---
 
-## 5️⃣ Add **Design Decisions (interview gold)**
+## ⚙️ Local Setup
 
-```md
-## 🧠 Design Decisions
+```bash
+# Clone the repo
+git clone https://github.com/shashank3605/analytics-pipeline
+cd analytics-pipeline
 
-- Queue-based architecture to decouple ingestion and processing  
-- Batch processing to reduce DB load  
-- Raw + aggregate tables for fast analytics  
-- Identified Prisma upsert as bottleneck  
-- Found that multiple workers increase DB contention locally  
+# Install dependencies
+npm install
 
+# Set up environment variables
+cp .env.example .env
 
-## ⚠️ Limitations
+# Run database migrations
+npx prisma migrate dev
 
-- Prisma upsert limits scaling (~7k/sec)  
-- DB contention with multiple workers  
+# Start the server
+npm run dev
+
+# Start the worker (separate terminal)
+npm run worker
+```
+
+---
+
+## ⚠️ Known Limitations
+
+- Prisma upsert becomes a bottleneck beyond ~7k req/sec
+- Multiple workers increase DB contention in local environment
+
+---
 
 ## 🔮 Future Improvements
 
-- Raw SQL batch upserts (`ON CONFLICT`)  
-- Monitoring (Prometheus + Grafana)  
-- Dead-letter queue  
-- Docker setup  
+- Raw SQL batch upserts using `ON CONFLICT DO UPDATE`
+- Docker + docker-compose setup
+- Monitoring with Prometheus + Grafana
+- Dead-letter queue for failed events
+- Horizontal scaling with managed Redis
+
+---
+
+## 👤 Author
+
+**Shashank Singh** — [GitHub](https://github.com/shashank3605) · [LinkedIn](https://linkedin.com/in/shashank-singh-935b311a1)
